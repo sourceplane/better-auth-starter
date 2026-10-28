@@ -14,6 +14,47 @@ spec:
   # Its own lane per environment: the Next.js build is the longest job in the
   # plan, and a shared lane would wait on it.
   lane: isolated
+  # INFRA BEFORE APP. The Worker binds the D1 database by id, the KV namespace
+  # by id and the R2 bucket by name, each rendered into its config during the
+  # build from the wiring document its root lease-publishes after its apply;
+  # and better-auth reads its tables and the generated auth secret, which
+  # db-migrate creates in that database. A job resolves its secrets when it
+  # STARTS, so on a merge to main this deploy waits for all four (enforced) —
+  # one convergence runs cloudflare-d1 → db-migrate, cloudflare-kv and
+  # cloudflare-r2 → web per environment, and the documents and the schema are
+  # there. A pull request deploys nothing, so nothing on one waits (advisory).
+  dependsOn:
+    - component: cloudflare-d1
+      mode: enforced
+      modeRules:
+        - mode: advisory
+          when:
+            triggerRef: github-pull-request
+    - component: cloudflare-kv
+      mode: enforced
+      modeRules:
+        - mode: advisory
+          when:
+            triggerRef: github-pull-request
+    - component: cloudflare-r2
+      mode: enforced
+      modeRules:
+        - mode: advisory
+          when:
+            triggerRef: github-pull-request
+    - component: db-migrate
+      mode: enforced
+      modeRules:
+        - mode: advisory
+          when:
+            triggerRef: github-pull-request
+  secretEnv:
+    WIRING_CLOUDFLARE_D1_STAGE: "secret://better-auth-starter/better-auth-starter/stage/WIRING_CLOUDFLARE_D1"
+    WIRING_CLOUDFLARE_D1_PROD: "secret://better-auth-starter/better-auth-starter/prod/WIRING_CLOUDFLARE_D1"
+    WIRING_CLOUDFLARE_KV_STAGE: "secret://better-auth-starter/better-auth-starter/stage/WIRING_CLOUDFLARE_KV"
+    WIRING_CLOUDFLARE_KV_PROD: "secret://better-auth-starter/better-auth-starter/prod/WIRING_CLOUDFLARE_KV"
+    WIRING_CLOUDFLARE_R2_STAGE: "secret://better-auth-starter/better-auth-starter/stage/WIRING_CLOUDFLARE_R2"
+    WIRING_CLOUDFLARE_R2_PROD: "secret://better-auth-starter/better-auth-starter/prod/WIRING_CLOUDFLARE_R2"
   # The OAuth providers' client ids and secrets, stored per environment as the
   # product's secrets (README → Sign-in providers). BEST-EFFORT,
   # wire-now-seed-later: a key nobody has stored is skipped when the job
@@ -67,16 +108,20 @@ spec:
     workersDevSubdomain: your-workers-subdomain
 
     installCommand: pnpm install --frozen-lockfile
-    # Render this environment's wrangler config, then build. Until the D1, KV
-    # and R2 roots land (BA2) every environment renders from the committed
-    # fixture. The OAuth secrets never reach the build (`env -u`): the Worker
+    # Render this environment's wrangler config, then build. stage and prod
+    # render from the wiring documents their cloudflare-d1, cloudflare-kv and
+    # cloudflare-r2 applies published (secretEnv above, resolved before the
+    # job's first step); dev, which no root applies to and which only
+    # verifies, renders from the committed fixture. The committed
+    # wrangler.jsonc (the fixture render) is what the composition's
+    # verify-app-structure step finds before this runs. The OAuth secrets never reach the build (`env -u`): the Worker
     # reads them at request time, so neither a bundle nor the bundler's cache
     # holds them. Then each one the environment has goes to the Worker as a
     # SECRET (tooling/wire/worker-secrets.mjs: `wrangler secret bulk`, the
     # values over stdin) before the composition deploys it. Only the deploy
     # lane holds a Cloudflare credential, so a verify lane builds the same and
     # pushes nothing.
-    buildCommand: node ../../tooling/wire/live.mjs --template wrangler.template.jsonc --out wrangler.jsonc --components cloudflare-d1,cloudflare-kv,cloudflare-r2 --env "${ORUN_ENVIRONMENT}" --fixture wiring.fixture.json --fixture-envs dev,stage,prod && env -u GITHUB_CLIENT_ID -u GITHUB_CLIENT_SECRET -u GOOGLE_CLIENT_ID -u GOOGLE_CLIENT_SECRET -u BETTER_AUTH_SECRET pnpm exec turbo run build --filter=@app/web && node ../../tooling/wire/worker-secrets.mjs --secret GITHUB_CLIENT_ID --secret GITHUB_CLIENT_SECRET --secret GOOGLE_CLIENT_ID --secret GOOGLE_CLIENT_SECRET --secret BETTER_AUTH_SECRET --worker "better-auth-starter-web-${ORUN_ENVIRONMENT}" --config wrangler.jsonc
+    buildCommand: node ../../tooling/wire/live.mjs --template wrangler.template.jsonc --out wrangler.jsonc --components cloudflare-d1,cloudflare-kv,cloudflare-r2 --env "${ORUN_ENVIRONMENT}" --fixture wiring.fixture.json --fixture-envs dev && env -u GITHUB_CLIENT_ID -u GITHUB_CLIENT_SECRET -u GOOGLE_CLIENT_ID -u GOOGLE_CLIENT_SECRET -u BETTER_AUTH_SECRET pnpm exec turbo run build --filter=@app/web && node ../../tooling/wire/worker-secrets.mjs --secret GITHUB_CLIENT_ID --secret GITHUB_CLIENT_SECRET --secret GOOGLE_CLIENT_ID --secret GOOGLE_CLIENT_SECRET --secret BETTER_AUTH_SECRET --worker "better-auth-starter-web-${ORUN_ENVIRONMENT}" --config wrangler.jsonc
 
     # Smoke: the sign-in page renders to its end (`</html>` — a render that
     # throws partway through a streamed page still sent a 200), and

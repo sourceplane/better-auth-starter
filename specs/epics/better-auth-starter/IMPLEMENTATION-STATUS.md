@@ -3,8 +3,8 @@
 | Milestone | Status | Shipped in |
 |---|---|---|
 | BA0 — the spec | ✅ Shipped | [#1](https://github.com/sourceplane/better-auth-starter/pull/1) |
-| BA1 — the auth app on Workers | In progress | |
-| BA2 — D1, KV and R2 from Terraform | Not started | |
+| BA1 — the auth app on Workers | ✅ Shipped | [#2](https://github.com/sourceplane/better-auth-starter/pull/2) |
+| BA2 — D1, KV and R2 from Terraform | In progress | |
 | BA3 — ready to instantiate | Not started | |
 | BA4 — a baseline | Not started | |
 
@@ -20,3 +20,4 @@
 8. **The site's name and source link** (`src/lib/site.ts`) head the sign-in page and title the document; the example's "Powered by better-auth-cloudflare" and its GitHub/npm links stay.
 9. Small lint fixes in the example's code (an escaped apostrophe, `any` → the file record's type); `debugLogs` and Drizzle's query logger off; `[placement]` not set.
 10. **`incremental` off** in `apps/web/tsconfig.json`: its build info prints better-auth's inferred instance type, which overflows the compiler's stack.
+11. **Three Terraform roots** — turso-starter's `cloudflare-d1`, kv-redis-starter's `cloudflare-kv`, blob-starter's `cloudflare-r2` (as ai-emoji-generator combined them) — and the `db-migrate` component, in place of the example's hand-made database, namespace and bucket. BA2 also restores the full `packages/db`, `tests/db` and `tests/web` component manifests, which BA1 landed cut short by a faulty edit (CI plans nothing while the workspace is the placeholder, so nothing read them).
