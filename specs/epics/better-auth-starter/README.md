@@ -8,7 +8,7 @@ The port keeps the sign-in page, the dashboard (user, geolocation and file-uploa
 
 | Field | Value |
 |-------|-------|
-| Status | In progress — BA0 shipped (#1), BA1 |
+| Status | In progress — BA0 (#1) and BA1 (#2) shipped, BA2 |
 | Cluster | **BA** (BA0–BA4) |
 | Owner(s) | `apps/web` · `tests/web` · `infra/terraform/cloudflare-{d1,kv,r2}` · `packages/db` + `infra/db-migrate` · `tests/db` |
 | Builds on | `turso-starter`: its scaffolding, its `cloudflare-d1` root and its migrations runner; `kv-redis-starter`'s `cloudflare-kv` root; `blob-starter`'s `cloudflare-r2` root; `saas-starter`'s generated app secret |

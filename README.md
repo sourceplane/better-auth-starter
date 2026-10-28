@@ -25,7 +25,8 @@ MIT, © 2025 Zach Grimaldi (`apps/web/LICENSE`).
 | The site's name and source link | `apps/web/src/lib/site.ts` |
 | The health route the deploy's smoke reads | `apps/web/src/app/api/health/route.ts` |
 | Workers build, bindings and deploy contract | `apps/web/next.config.mjs`, `open-next.config.ts`, `wrangler.template.jsonc` + `wiring.fixture.json` (→ the committed `wrangler.jsonc`), `component.yaml` |
-| The schema (migrations) and the runner that applies them over the D1 REST API | `packages/db` |
+| The D1 database, the KV namespace and the R2 bucket (stage, prod) | `infra/terraform/cloudflare-d1`, `cloudflare-kv`, `cloudflare-r2` |
+| The schema (migrations) and the runner that applies them over the D1 REST API | `packages/db`, run by `infra/db-migrate` |
 | Tests | `tests/web` (the providers, the generated secret, the health route, the redirects), `tests/db` (the migrations through the runner, into real SQLite) |
 
 ## Getting started
@@ -60,10 +61,27 @@ No mail sender is configured, so email addresses are not verified.
 |---|---|
 | `wrangler.toml` with placeholder database, namespace and bucket ids | `wrangler.template.jsonc` → `wrangler.jsonc`, rendered per environment from wiring documents (`tooling/wire`); the binding names (`DATABASE`, `KV`, `R2_BUCKET`) are the example's |
 | `better-auth-cloudflare: file:../../` (the repository's own build) | `better-auth-cloudflare@0.4.1` from npm, exact, with `better-auth` and the Drizzle adapter at `1.7.3` |
-| drizzle-kit migrations, `wrangler d1 migrations apply` | `packages/db` migrations — `010_auth` (the three drizzle files' end state), `020_app_secrets` — applied locally by `db:migrate:local` |
+| drizzle-kit migrations, `wrangler d1 migrations apply` | `packages/db` migrations — `010_auth` (the three drizzle files' end state), `020_app_secrets` — applied by `infra/db-migrate` before the Worker deploys, and locally by `db:migrate:local` |
+| a database, a namespace and a bucket created by hand in the dashboard | `infra/terraform/cloudflare-{d1,kv,r2}`, applied by Orun before the migrations and the Worker |
 | `BETTER_AUTH_SECRET` typed into `.dev.vars` | generated once per database by `020_app_secrets`; a `BETTER_AUTH_SECRET` secret wins |
 | `BETTER_AUTH_URL` / `BETTER_AUTH_TRUSTED_ORIGINS` vars | optional; unset, the base URL and the trusted origin are the origin the request came to |
 | anonymous sign-in only | anonymous, email and password, and GitHub/Google when their keys are stored |
 | Next.js 15 `middleware.ts` | Next.js 16 `proxy.ts`, the same self-request to `/api/auth/get-session` |
 | `next build` ignoring lint and type errors | `pnpm lint` and `pnpm typecheck` clean; the build checks types |
 | `[placement] mode = "smart"` | not set: D1, KV and R2 are in the Worker's own account |
+
+## How the data reaches the Worker
+
+```
+infra/terraform/cloudflare-d1 ──apply──► WIRING_CLOUDFLARE_D1 ─┬─► infra/db-migrate  apply: packages/db's runner → POST …/d1/database/<id>/query
+infra/terraform/cloudflare-kv ──apply──► WIRING_CLOUDFLARE_KV ─┤        (better-auth's tables, the generated auth secret)
+infra/terraform/cloudflare-r2 ──apply──► WIRING_CLOUDFLARE_R2 ─┴─► apps/web  build: tooling/wire/live.mjs → wrangler.jsonc with the ids
+                                                                          (dev, verify-only, renders the fixture) → next build → OpenNext → deploy
+```
+
+Each reader declares an enforced `dependsOn` on what it reads on a push to
+`main` (advisory on a pull request), so one convergence per environment runs
+the three roots, then the migrations, then the Worker. `wrangler.jsonc` is
+committed as the fixture render of `wrangler.template.jsonc`, because the
+deploy lane's `verify-app-structure` step checks the config exists before it
+builds.
