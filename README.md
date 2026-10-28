@@ -46,6 +46,34 @@ pnpm --filter @app/web dev                # http://localhost:3000 — the local 
 pnpm --filter @app/web preview            # wrangler dev over the built Worker, same local bindings
 ```
 
+## Deploying
+
+The Orun pipeline (`.github/workflows/ci.yml`) plans nothing while
+`intent.yaml` names the placeholder workspace `ws_CHANGE_ME`. Link the
+repository to an Orun Cloud workspace (`orun cloud link`), set
+`execution.state.workspace` to it, connect Cloudflare in the workspace, and
+every merge to `main` then applies the D1 database, the KV namespace and the
+R2 bucket, migrates the database and deploys `better-auth-starter-web-stage`,
+then `-prod`, each smoke-tested on `/api/health`. A pull request verifies the
+same lanes and deploys nothing. A manual run of `ci.yml` (Run workflow on
+`main`, or Orunbase's Deploy button) redeploys the components it names.
+
+The deploy needs nothing typed: the auth secret is generated in each
+environment's database by the migrations, and the sign-in page works with no
+provider. R2 must be enabled on the Cloudflare account once (the dashboard
+asks for a payment method even on the free tier); until it is, the R2 root's
+apply fails.
+
+## Custom domain
+
+The Worker answers on `workers.dev` from its first deploy. To serve it on a
+domain of your own, attach the domain to the Worker in Cloudflare (Workers &
+Pages → the Worker → Settings → Domains & Routes) and replace
+`better-auth-starter.example.com` in `intent.yaml`'s `BASE_DOMAIN`. better-auth
+takes the origin each request arrives on, so sign-in works on the new domain
+without changing a line; set `BETTER_AUTH_URL` only to pin one origin (an
+OAuth app's callback URL must match it).
+
 ## Sign-in providers
 
 Anonymous and email-and-password sign-in work with nothing configured.

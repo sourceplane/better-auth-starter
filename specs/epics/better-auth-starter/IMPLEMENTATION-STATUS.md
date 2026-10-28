@@ -4,9 +4,20 @@
 |---|---|---|
 | BA0 — the spec | ✅ Shipped | [#1](https://github.com/sourceplane/better-auth-starter/pull/1) |
 | BA1 — the auth app on Workers | ✅ Shipped | [#2](https://github.com/sourceplane/better-auth-starter/pull/2) |
-| BA2 — D1, KV and R2 from Terraform | In progress | |
-| BA3 — ready to instantiate | Not started | |
+| BA2 — D1, KV and R2 from Terraform | ✅ Shipped | [#3](https://github.com/sourceplane/better-auth-starter/pull/3) |
+| BA3 — ready to instantiate | In progress | |
 | BA4 — a baseline | Not started | |
+
+## What is proven, and how
+
+| Claim | Proven by |
+|---|---|
+| The app builds into one Worker within Workers Free's 3 MiB (1,911 KiB gzipped) | `pnpm build` + `wrangler deploy --dry-run` |
+| Email sign-up, the session, the redirect to the dashboard, the dashboard, a file through R2 and back, anonymous sign-in | `wrangler dev` over the local D1 after `db:migrate:local` (BA1) |
+| The migrations apply into real SQLite through the runner, twice | `tests/db` |
+| The providers, the generated secret, the health route, the redirects | `tests/web` |
+| The roots are valid Terraform; the plan orders roots → migrations → Worker | `terraform validate`; `orun plan` (BA2) |
+| The applies, the migrations and the deploy on a real account | only a live bootstrap (risk BA-F) |
 
 ## Departures from the upstream example
 
