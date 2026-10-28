@@ -1,0 +1,9 @@
+apiVersion: sourceplane.io/v1
+kind: Component
+metadata:
+  name: db
+  description: better-auth's schema and the generated auth secret as migrations, and the runner that applies them to D1 (built by the db-migrate component before it plans or applies)
+spec:
+  type: turbo-package
+  lifecycle: production
+  owner: platform

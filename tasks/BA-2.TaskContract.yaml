@@ -4,10 +4,13 @@ metadata:
   name: BA-2
   title: "The auth app on Workers"
 spec:
-  goal: The better-auth-cloudflare OpenNext example runs as one Cloudflare Worker with Static Assets — anonymous, email and optional OAuth sign-in, sessions in KV, users in D1, uploads in R2 — with its tests, and its README saying how it maps to Cloudflare
+  goal: The better-auth-cloudflare OpenNext example runs as one Cloudflare Worker with Static Assets — anonymous, email and optional OAuth sign-in, sessions in KV, users in D1, uploads in R2, its schema and generated auth secret as migrations — with its tests, and its README saying how it maps to the example's Cloudflare setup
   affects:
     - apps/web
     - tests/web
+    - packages/db
+    - tests/db
+    - tooling/migrations
     - tooling/wire
     - pnpm-lock.yaml
     - pnpm-workspace.yaml

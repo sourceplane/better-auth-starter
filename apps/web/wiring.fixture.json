@@ -1,0 +1,20 @@
+{
+  "cloudflare-d1/dev": {
+    "d1_database_id": "00000000-0000-0000-0000-000000000002",
+    "d1_database_name": "dev-better-auth-starter-dev"
+  },
+  "cloudflare-d1/stage": {
+    "d1_database_id": "00000000-0000-0000-0000-000000000001",
+    "d1_database_name": "stg-better-auth-starter-stage"
+  },
+  "cloudflare-d1/prod": {
+    "d1_database_id": "00000000-0000-0000-0000-000000000003",
+    "d1_database_name": "prod-better-auth-starter-prod"
+  },
+  "cloudflare-kv/dev": { "app_kv_id": "00000000000000000000000000000002" },
+  "cloudflare-kv/stage": { "app_kv_id": "00000000000000000000000000000001" },
+  "cloudflare-kv/prod": { "app_kv_id": "00000000000000000000000000000003" },
+  "cloudflare-r2/dev": { "r2_bucket_name": "dev-better-auth-starter-dev" },
+  "cloudflare-r2/stage": { "r2_bucket_name": "stg-better-auth-starter-stage" },
+  "cloudflare-r2/prod": { "r2_bucket_name": "prod-better-auth-starter-prod" }
+}

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Applies packages/db's migrations, in manifest order, to wrangler's LOCAL D1
 // — the database `next dev` (through wrangler's platform proxy) and
-// `wrangler dev` bind as DB. Deployed environments never run this: the
+// `wrangler dev` bind as DATABASE. Deployed environments never run this: the
 // db-migrate component applies the same files to stage and prod over the D1
 // REST API, before the Worker deploys.
 //
@@ -23,10 +23,10 @@ if (paths.length === 0) {
 }
 const config = process.argv[2] ?? "wrangler.jsonc";
 for (const rel of paths) {
-  console.log(`migrations: ${rel} → local D1 (DB)`);
+  console.log(`migrations: ${rel} → local D1 (DATABASE)`);
   const r = spawnSync(
     "wrangler",
-    ["d1", "execute", "DB", "--local", "--config", config, "--file", resolve(db, "migrations", rel)],
+    ["d1", "execute", "DATABASE", "--local", "--config", config, "--file", resolve(db, "migrations", rel)],
     { stdio: "inherit" },
   );
   if (r.status !== 0) {
