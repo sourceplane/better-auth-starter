@@ -10,3 +10,14 @@ onlyBuiltDependencies:
   - esbuild
   - workerd
   - sharp
+
+overrides:
+  # One @types/react for every package, so the app's React types and the
+  # tests' are the same copy.
+  "@types/react": 19.0.12
+  # The example's own pins (examples/opennextjs/package.json `pnpm.overrides`):
+  # versions of better-auth's and Next's transitive dependencies it was tested
+  # with and cleared of advisories.
+  "@better-auth/utils": 0.4.2
+  defu: 6.1.5
+  nanoid: 3.3.18

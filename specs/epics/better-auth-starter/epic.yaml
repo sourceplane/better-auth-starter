@@ -19,12 +19,13 @@ spec:
       exitCriteria:
         - "apps/web is the upstream example on Next.js 16, built by OpenNext into one Worker with Static Assets within Workers Free's 3 MiB, better-auth and better-auth-cloudflare pinned to exact versions"
         - "anonymous and email-and-password sign-in work with no provider configured; GitHub and Google appear only when their client id and secret are both set"
-        - "`pnpm typecheck`, `pnpm lint`, `pnpm test` and `pnpm build` are green, and the README says how the example maps to Cloudflare"
+        - "the better-auth tables and the generated auth secret are packages/db migrations, applied locally by db:migrate:local"
+        - "`pnpm typecheck`, `pnpm lint`, `pnpm test` and `pnpm build` are green, and the README says how the example maps to this setup"
       tasks: [BA-2]
     - name: "BA2 — D1, KV and R2 from Terraform, the schema through db-migrate"
       exitCriteria:
         - "infra/terraform/cloudflare-d1, cloudflare-kv and cloudflare-r2 provision stage and prod and publish the wiring documents the Worker's config renders from"
-        - "the better-auth tables are migrations packages/db's runner applies before the Worker deploys, and the auth secret is generated in the database by a migration, never typed"
+        - "infra/db-migrate applies packages/db's migrations — better-auth's tables and the generated auth secret — before the Worker deploys"
       tasks: [BA-3]
     - name: "BA3 — ready to instantiate"
       exitCriteria:

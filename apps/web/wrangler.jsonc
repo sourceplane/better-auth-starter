@@ -1,0 +1,38 @@
+// GENERATED from wrangler.template.jsonc by tooling/wire — edit the
+// template, not this file. The committed copy is the fixture render
+// (`pnpm run wire:fixture`); every Orun lane renders its own environment.
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "better-auth-starter-web",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2026-10-01",
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "observability": { "enabled": true },
+  // better-auth's tables and the generated auth secret — Cloudflare D1.
+  "d1_databases": [
+    {
+      "binding": "DATABASE",
+      "database_name": "stg-better-auth-starter-stage",
+      "database_id": "00000000-0000-0000-0000-000000000001"
+    }
+  ],
+  // better-auth's secondary storage: the sessions — Workers KV.
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      "id": "00000000000000000000000000000001"
+    }
+  ],
+  // The files signed-in users upload — Cloudflare R2 (private; the auth API
+  // serves them through the download hook).
+  "r2_buckets": [
+    {
+      "binding": "R2_BUCKET",
+      "bucket_name": "stg-better-auth-starter-stage"
+    }
+  ]
+}

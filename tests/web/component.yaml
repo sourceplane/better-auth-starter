@@ -1,0 +1,9 @@
+apiVersion: sourceplane.io/v1
+kind: Component
+metadata:
+  name: web-tests
+  description: The auth app's tests (the OAuth providers, the generated secret, the health route and the sign-in redirects, over real SQLite with the migrations applied), run on every pull request
+spec:
+  type: turbo-package
+  lifecycle: production
+  owner: platform
