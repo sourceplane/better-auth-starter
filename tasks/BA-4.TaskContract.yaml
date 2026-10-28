@@ -1,0 +1,15 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: BA-4
+  title: "Ready to instantiate"
+spec:
+  goal: A reader can run, test, preview and deploy the app from its README, and the as-built status records every departure from the upstream example
+  affects:
+    - README.md
+    - specs/epics/better-auth-starter
+    - specs/epics/README.md
+  doneWhen:
+    - the README covers local work, tests, preview, deploy and the Cloudflare mapping
+    - IMPLEMENTATION-STATUS lists every departure from the example
+  gates: []
