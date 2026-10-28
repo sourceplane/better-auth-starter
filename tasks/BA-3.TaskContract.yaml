@@ -1,0 +1,20 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: BA-3
+  title: "D1, KV and R2 from Terraform, the schema through db-migrate"
+spec:
+  goal: The D1 database, the KV namespace and the R2 bucket are Terraform roots that publish the wiring the Worker renders from, and the better-auth schema and the generated auth secret are migrations db-migrate applies before the Worker deploys
+  affects:
+    - infra
+    - packages/db
+    - tests/db
+    - apps/web/component.yaml
+    - apps/web/wrangler.template.jsonc
+    - apps/web/wiring.fixture.json
+    - pnpm-lock.yaml
+  doneWhen:
+    - every root passes terraform validate and publishes its wiring keys
+    - the migrations apply to a fresh SQLite database through the runner, and a second apply applies nothing
+    - the product's push-to-main plan orders the three roots, then the migrations, then the Worker
+  gates: []

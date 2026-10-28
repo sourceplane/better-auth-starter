@@ -1,0 +1,39 @@
+# The epic's declaration. metadata.name equals the directory name; metadata.key
+# is the task-key prefix this epic reserves (BA → BA-1, BA-2, …). Owner, target
+# date and health are the platform's — never written here.
+apiVersion: orun.io/v1
+kind: Epic
+metadata:
+  name: better-auth-starter
+  key: BA
+spec:
+  title: "zpg6's better-auth-cloudflare OpenNext example on Cloudflare Workers, D1, KV and R2"
+  summary: "The better-auth-cloudflare OpenNext example (zpg6/better-auth-cloudflare, examples/opennextjs) — open-source authentication with better-auth: anonymous sign-in, sessions enriched with Cloudflare's geolocation, file uploads to R2, an OpenAPI reference — runs on Cloudflare Workers + Static Assets through @opennextjs/cloudflare with its users in D1, its sessions in Workers KV and its files in R2, each provisioned by Terraform through Orun and the schema applied by db-migrate, gains email-and-password sign-in and optional GitHub and Google sign-in, and becomes an Orun baseline that takes a new auth app from nothing to live on stage and prod in one landing."
+  state: started
+  milestones:
+    - name: "BA0 — the spec"
+      exitCriteria:
+        - "the repository carries its intent, CI, tooling and spec index, and this doc set and the task contracts are on main"
+      tasks: [BA-1]
+    - name: "BA1 — the auth app on Workers"
+      exitCriteria:
+        - "apps/web is the upstream example on Next.js 16, built by OpenNext into one Worker with Static Assets within Workers Free's 3 MiB, better-auth and better-auth-cloudflare pinned to exact versions"
+        - "anonymous and email-and-password sign-in work with no provider configured; GitHub and Google appear only when their client id and secret are both set"
+        - "`pnpm typecheck`, `pnpm lint`, `pnpm test` and `pnpm build` are green, and the README says how the example maps to Cloudflare"
+      tasks: [BA-2]
+    - name: "BA2 — D1, KV and R2 from Terraform, the schema through db-migrate"
+      exitCriteria:
+        - "infra/terraform/cloudflare-d1, cloudflare-kv and cloudflare-r2 provision stage and prod and publish the wiring documents the Worker's config renders from"
+        - "the better-auth tables are migrations packages/db's runner applies before the Worker deploys, and the auth secret is generated in the database by a migration, never typed"
+      tasks: [BA-3]
+    - name: "BA3 — ready to instantiate"
+      exitCriteria:
+        - "the README says how to run, test, preview and deploy it"
+        - "the as-built status records every departure from the upstream example"
+      tasks: [BA-4]
+    - name: "BA4 — a baseline"
+      exitCriteria:
+        - "blueprint.yaml (the console card) and repo-blueprint.yaml (the build) take a new auth app from nothing to live on stage and prod in one landing, then record it"
+        - "a product built from it carries the product only, renamed throughout to its own name, repository, Worker, database, namespace and bucket names, with the example's MIT licence intact"
+        - "Baseline CI is green: contract tests, generated component docs, the blueprint read by the pinned orun, the leak gate, the offline bootstrap and the end-to-end tier"
+      tasks: [BA-5]

@@ -1,0 +1,18 @@
+apiVersion: orun.io/v1
+kind: TaskContract
+metadata:
+  name: BA-2
+  title: "The auth app on Workers"
+spec:
+  goal: The better-auth-cloudflare OpenNext example runs as one Cloudflare Worker with Static Assets — anonymous, email and optional OAuth sign-in, sessions in KV, users in D1, uploads in R2 — with its tests, and its README saying how it maps to Cloudflare
+  affects:
+    - apps/web
+    - tests/web
+    - tooling/wire
+    - pnpm-lock.yaml
+    - pnpm-workspace.yaml
+    - README.md
+  doneWhen:
+    - pnpm typecheck, lint, test and build are green, and the Worker is within Workers Free's 3 MiB gzipped
+    - wrangler dev serves the sign-in page, signs a user in anonymously and with email and password, shows the dashboard, uploads and downloads a file, and answers /api/health
+  gates: []
