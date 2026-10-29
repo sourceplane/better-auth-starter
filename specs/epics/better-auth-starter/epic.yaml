@@ -9,7 +9,7 @@ metadata:
 spec:
   title: "zpg6's better-auth-cloudflare OpenNext example on Cloudflare Workers, D1, KV and R2"
   summary: "The better-auth-cloudflare OpenNext example (zpg6/better-auth-cloudflare, examples/opennextjs) — open-source authentication with better-auth: anonymous sign-in, sessions enriched with Cloudflare's geolocation, file uploads to R2, an OpenAPI reference — runs on Cloudflare Workers + Static Assets through @opennextjs/cloudflare with its users in D1, its sessions in Workers KV and its files in R2, each provisioned by Terraform through Orun and the schema applied by db-migrate, gains email-and-password sign-in and optional GitHub and Google sign-in, and becomes an Orun baseline that takes a new auth app from nothing to live on stage and prod in one landing."
-  state: started
+  state: completed
   milestones:
     - name: "BA0 — the spec"
       exitCriteria:
