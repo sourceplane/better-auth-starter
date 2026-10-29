@@ -8,8 +8,13 @@ const app = path.resolve(__dirname, "../../../apps/web");
 // The two branding seams the rename rewrites, and the committed config the
 // deploy lane checks for before it builds.
 describe("the site's identity and config", () => {
+  // The name is the product's: the rename rewrites this seam, so a literal
+  // here would hold for the baseline alone. Which name a built product
+  // carries is checked where its values are known (the rename's tests and
+  // the e2e, against the page itself).
   it("names itself and links its own repository", () => {
-    expect(SITE_NAME).toBe("Auth Starter");
+    expect(typeof SITE_NAME).toBe("string");
+    expect(SITE_NAME.trim()).not.toBe("");
     expect(SOURCE_URL).toMatch(/^https:\/\/github\.com\/[^/]+\/[^/]+$/);
   });
 

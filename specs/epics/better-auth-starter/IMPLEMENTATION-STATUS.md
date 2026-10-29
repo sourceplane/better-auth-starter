@@ -5,8 +5,8 @@
 | BA0 — the spec | ✅ Shipped | [#1](https://github.com/sourceplane/better-auth-starter/pull/1) |
 | BA1 — the auth app on Workers | ✅ Shipped | [#2](https://github.com/sourceplane/better-auth-starter/pull/2) |
 | BA2 — D1, KV and R2 from Terraform | ✅ Shipped | [#3](https://github.com/sourceplane/better-auth-starter/pull/3) |
-| BA3 — ready to instantiate | In progress | |
-| BA4 — a baseline | Not started | |
+| BA3 — ready to instantiate | ✅ Shipped | [#4](https://github.com/sourceplane/better-auth-starter/pull/4) |
+| BA4 — a baseline | ✅ Shipped, tagged `baseline-v1` | [#5](https://github.com/sourceplane/better-auth-starter/pull/5) |
 
 ## What is proven, and how
 
@@ -17,6 +17,9 @@
 | The migrations apply into real SQLite through the runner, twice | `tests/db` |
 | The providers, the generated secret, the health route, the redirects | `tests/web` |
 | The roots are valid Terraform; the plan orders roots → migrations → Worker | `terraform validate`; `orun plan` (BA2) |
+| A bootstrap places the product only, renamed throughout, and its own plan orders roots → migrations → Worker per environment | `testing/leak.test.sh`, `testing/placement.test.sh` (BA4) |
+| The bootstrapped product installs, typechecks, lints, tests and builds at its landing; its stage web lane builds with the stage documents' ids and dry-deploys within 3 MiB with no planted secret in the bundle; its db-migrate lane plans, applies and re-applies nothing against a stand-in D1 API | `testing/e2e.test.sh` (BA4) |
+| Served by `wrangler dev`: no schema → the health route 503 and the deploy's smoke refuses it; migrated → the smoke passes; sign-up (a foreign Origin refused), the redirects, the dashboard, an R2 round trip (another user refused), sign-out, a wrong password, sign-in, anonymous sign-in, the OpenAPI reference, the sign-in rate limit; then with GitHub's keys handed over as the deploy hands them, the button and an authorize URL with this deployment's callback | `testing/e2e.test.sh` + `testing/lib/auth-flows.py` (BA4) |
 | The applies, the migrations and the deploy on a real account | only a live bootstrap (risk BA-F) |
 
 ## Departures from the upstream example
@@ -32,3 +35,4 @@
 9. Small lint fixes in the example's code (an escaped apostrophe, `any` → the file record's type); `debugLogs` and Drizzle's query logger off; `[placement]` not set.
 10. **`incremental` off** in `apps/web/tsconfig.json`: its build info prints better-auth's inferred instance type, which overflows the compiler's stack.
 11. **Three Terraform roots** — turso-starter's `cloudflare-d1`, kv-redis-starter's `cloudflare-kv`, blob-starter's `cloudflare-r2` (as ai-emoji-generator combined them) — and the `db-migrate` component, in place of the example's hand-made database, namespace and bucket. BA2 also restores the full `packages/db`, `tests/db` and `tests/web` component manifests, which BA1 landed cut short by a faulty edit (CI plans nothing while the workspace is the placeholder, so nothing read them).
+12. **`tests/web`'s site test** no longer pins the name `Auth Starter` (BA4): the rename rewrites the `SITE_NAME` seam, so the literal held for this tree alone and failed in every product; the product's name is checked against its values by the rename's tests and the e2e.
