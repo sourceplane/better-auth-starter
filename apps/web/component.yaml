@@ -92,6 +92,29 @@ spec:
           - profile: deploy
             when:
               triggerRef: github-push-main
+  # How the app runs itself for orun.work's live Preview tab
+  # (saas-parallel-baselining PB4): `orun preview` starts this, and a coding
+  # session keeps it running while it works, so the person watches it change
+  # as it is built. The dev server binds the box's loopback only, on a fixed
+  # port, and installs first, so a checkout the session has not installed yet
+  # still comes up.
+  # It installs only this app's packages and runs `next dev` alone, with its
+  # heap capped: the box is shared with the agent. Its D1, KV and R2 are
+  # wrangler's local ones. It applies the migrations to that local D1 first
+  # (`db:migrate:local`, the README's own step before `next dev`: better-auth's
+  # tables and the generated auth secret; each one is idempotent, so a restart
+  # changes nothing), without which every session lookup fails and the page
+  # shows only the error.
+  preview:
+    run:
+      - sh
+      - -c
+      - pnpm install --frozen-lockfile --prefer-offline --filter "@app/web..." && pnpm run db:migrate:local && exec node_modules/.bin/next dev -H 127.0.0.1 -p 3000
+    port: 3000
+    path: /
+    env:
+      NODE_OPTIONS: --max-old-space-size=1024
+      NEXT_TELEMETRY_DISABLED: "1"
   parameters:
     nodeVersion: "22"
     pnpmVersion: "10.12.1"
